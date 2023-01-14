@@ -1,4 +1,5 @@
 CREATE DATABASE pizza_place;
+USE pizza_place;
 
 CREATE TABLE orders (
     row_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -19,18 +20,17 @@ CREATE TABLE pizzas (
 );
 
 CREATE TABLE ingredients (
-    ingred_id INT NOT NULL,
+    ing_id INT NOT NULL,
     ing_name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE recipes (
-    row_id INT NOT NULL,
-    recipe_id VARCHAR(50) NOT NULL,
-    ingred_id INT NOT NULL,
+    row_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    recipe_id INT,
+    ingred_id VARCHAR(50) NOT NULL,
     FOREIGN KEY (recipe_id)
-        REFERENCES pizzas (pizza_name),
-    FOREIGN KEY (ingred_id)
-        REFERENCES ingredients (ing_name)
-);
+        REFERENCES pizzas(pizza_id),
+    FOREIGN KEY (ingred_id) REFERENCES ingredients(ingred_id));
+-- );
 
 
