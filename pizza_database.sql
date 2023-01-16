@@ -34,3 +34,54 @@ CREATE TABLE recipes (
     FOREIGN KEY (ingred_id) REFERENCES ingredients(ingred_id));
 -- );
 
+SELECT * FROM orders;
+
+-- What days and times do we tend to be busiest?
+
+SELECT 
+    DAYNAME(order_date) AS 'order_day', SUM(quantity) AS busiest_days
+FROM
+    orders
+GROUP BY order_day
+ORDER BY busiest_days DESC;
+
+SELECT 
+    HOUR(order_time) AS 'order_hour', SUM(quantity) AS busiest_hours
+FROM
+    orders
+GROUP BY order_hour
+ORDER BY busiest_hours DESC;
+
+SELECT 
+    DAYNAME(order_date) AS 'order_day',
+    HOUR(order_time) AS 'order_hour',
+    COUNT(*) AS busiest_hours
+FROM
+    orders
+GROUP BY order_day , order_hour
+ORDER BY busiest_hours DESC;
+
+-- The busiests days: Friday, Saturday, Thursday
+-- The busiests hours: 12, 13, 17, 18
+
+-- How many pizzas are we making during peak periods?
+
+SELECT * FROM orders;
+
+SELECT 
+    HOUR(order_time) AS 'order_hour', SUM(quantity), COUNT(*)  AS busiest_hours
+FROM
+    orders
+GROUP BY order_hour HAVING order_hour IN (12,13,17,18)
+ORDER BY busiest_hours DESC;
+
+-- 12 - 13 : 13 189, 
+-- 17 - 18 : 10 502
+
+
+
+SELECT 
+    HOUR(order_time) AS 'order_hour',
+    SUM(quantity) OVER(PARTITION BY HOUR(order_time)) AS the_most
+FROM orders
+ORDER BY the_most;
