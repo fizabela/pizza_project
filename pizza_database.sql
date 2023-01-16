@@ -4,10 +4,11 @@ USE pizza_place;
 CREATE TABLE orders (
     row_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
-    order_time DATETIME NOT NULL,
+    order_date DATE NOT NULL,
+    order_time TIME NOT NULL,
     quantity INT NOT NULL,
     pizza_size VARCHAR(50) NOT NULL,
-    unit_price INT NOT NULL,
+    unit_price DECIMAL(4,2) NOT NULL,
     item_id INT NOT NULL,
     FOREIGN KEY (item_id)
         REFERENCES pizzas (pizza_id)
@@ -32,5 +33,4 @@ CREATE TABLE recipes (
         REFERENCES pizzas(pizza_id),
     FOREIGN KEY (ingred_id) REFERENCES ingredients(ingred_id));
 -- );
-
 
