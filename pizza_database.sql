@@ -34,49 +34,56 @@ CREATE TABLE recipes (
     FOREIGN KEY (ingred_id) REFERENCES ingredients(ingred_id));
 -- );
 
-SELECT * FROM orders;
+
+
+CREATE VIEW compiled_data AS
+SELECT 
+    order_id,
+    order_date,
+    order_time,
+    quantity,
+    unit_price,
+    pizza_name
+FROM
+    orders
+        LEFT JOIN
+    pizzas ON orders.item_id = pizzas.pizza_id;
+    
+SELECT * FROM compiled_data;
 
 -- What days and times do we tend to be busiest?
 
 SELECT 
-    DAYNAME(order_date) AS 'order_day', SUM(quantity) AS busiest_days
+    DAYNAME(order_date) AS 'order_day', SUM(quantity) AS no_orders
 FROM
-    orders
+    compiled_data
 GROUP BY order_day
-ORDER BY busiest_days DESC;
+ORDER BY no_orders DESC
+LIMIT 2;
 
 SELECT 
-    HOUR(order_time) AS 'order_hour', SUM(quantity) AS busiest_hours
+    HOUR(order_time) AS 'order_hour', SUM(quantity) AS no_orders
 FROM
-    orders
+    compiled_data
 GROUP BY order_hour
-ORDER BY busiest_hours DESC;
+ORDER BY no_orders DESC
+LIMIT 2;
 
-SELECT 
-    DAYNAME(order_date) AS 'order_day',
-    HOUR(order_time) AS 'order_hour',
-    COUNT(*) AS busiest_hours
-FROM
-    orders
-GROUP BY order_day , order_hour
-ORDER BY busiest_hours DESC;
 
 -- The busiests days: Friday, Saturday, Thursday
 -- The busiests hours: 12, 13, 17, 18
 
 -- How many pizzas are we making during peak periods?
 
-SELECT * FROM orders;
-
 SELECT 
-    HOUR(order_time) AS 'order_hour', SUM(quantity), COUNT(*)  AS busiest_hours
+    SUM(quantity)
 FROM
-    orders
-GROUP BY order_hour HAVING order_hour IN (12,13,17,18)
-ORDER BY busiest_hours DESC;
+    compiled_data
+		WHERE HOUR(order_hour) IN (12,13)
+GROUP BY order_hour;
 
--- 12 - 13 : 13 189, 
--- 17 - 18 : 10 502
+-- 12/13 : 13 189, 
+-- 17/18 : 10 502
 
 
 
@@ -85,3 +92,36 @@ SELECT
     SUM(quantity) OVER(PARTITION BY HOUR(order_time)) AS the_most
 FROM orders
 ORDER BY the_most;
+
+-- What are our best and worst-selling pizzas?
+
+SELECT 
+    pizza_name, no_sold_pizzas
+FROM
+    ((SELECT 
+        pizza_name, SUM(quantity) AS no_sold_pizzas
+    FROM
+        compiled_data
+    GROUP BY pizza_name
+    LIMIT 1) UNION (SELECT 
+        pizza_name, SUM(quantity) AS no_sold_pizzas
+    FROM
+        compiled_data
+    GROUP BY pizza_name
+    ORDER BY no_sold_pizzas
+    LIMIT 1)) AS temp;
+
+-- The Best: The Hawaiian Pizza - 2422
+-- The Worst: The Brie Pizza - 490
+
+-- What's our average order value?
+
+
+SELECT ROUND((SELECT SUM(quantity * unit_price) 
+        FROM compiled_data) / (SELECT SUM(quantity) 
+                          FROM compiled_data),2) AS X; 
+                          
+                          
+SELECT  (SELECT SUM(unit_price) AS total_value_order FROM compiled_data
+GROUP BY order_id / (SELECT SUM(quantity) AS total_quantity FROM compiled_data
+GROUP BY order_id)) AS X;
