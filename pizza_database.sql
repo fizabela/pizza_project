@@ -34,7 +34,13 @@ CREATE TABLE recipes (
     FOREIGN KEY (ingred_id) REFERENCES ingredients(ingred_id));
 -- );
 
-
+LOAD DATA INFILE "C:\Users....csv"
+INTO TABLE orders
+COLUMNS TERMINATED BY ';'
+OPTIONALLY ENCLOSED BY '"'
+ESCAPED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES;
 
 CREATE VIEW compiled_data AS
 SELECT 
@@ -75,23 +81,26 @@ LIMIT 2;
 
 -- How many pizzas are we making during peak periods?
 
-SELECT 
-    SUM(quantity)
+SELECT SUM(no_pizzas) AS no_pizzas_12_13 FROM(
+    SELECT HOUR(order_time) AS order_hour, SUM(quantity) AS no_pizzas
 FROM
     compiled_data
-		WHERE HOUR(order_hour) IN (12,13)
-GROUP BY order_hour;
+GROUP BY order_hour
+ORDER BY no_pizzas DESC
+LIMIT 2) AS sold_12_13;
 
--- 12/13 : 13 189, 
--- 17/18 : 10 502
+-- 12/13 : 13 189
 
+SELECT SUM(no_pizzas) AS no_pizzas_17_18 FROM(
+    SELECT HOUR(order_time) AS order_hour, SUM(quantity) AS no_pizzas
+FROM
+    compiled_data
+GROUP BY order_hour
+ORDER BY no_pizzas DESC
+LIMIT 2,2) AS sold_17_18;
 
+-- 17/18 : 10 628
 
-SELECT 
-    HOUR(order_time) AS 'order_hour',
-    SUM(quantity) OVER(PARTITION BY HOUR(order_time)) AS the_most
-FROM orders
-ORDER BY the_most;
 
 -- What are our best and worst-selling pizzas?
 
@@ -109,19 +118,15 @@ FROM
         compiled_data
     GROUP BY pizza_name
     ORDER BY no_sold_pizzas
-    LIMIT 1)) AS temp;
+    LIMIT 1)) AS best_worst_pizza;
 
 -- The Best: The Hawaiian Pizza - 2422
 -- The Worst: The Brie Pizza - 490
 
+
 -- What's our average order value?
 
+SELECT ROUND(AVG(order_val_total), 2) AS avg_order_val FROM(SELECT order_id, SUM(unit_price*quantity) AS order_val_total FROM compiled_data
+GROUP BY order_id) AS total_order_value_grouped;
 
-SELECT ROUND((SELECT SUM(quantity * unit_price) 
-        FROM compiled_data) / (SELECT SUM(quantity) 
-                          FROM compiled_data),2) AS X; 
-                          
-                          
-SELECT  (SELECT SUM(unit_price) AS total_value_order FROM compiled_data
-GROUP BY order_id / (SELECT SUM(quantity) AS total_quantity FROM compiled_data
-GROUP BY order_id)) AS X;
+SELECT * FROM compiled_data;
