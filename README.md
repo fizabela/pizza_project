@@ -26,6 +26,6 @@ The project includes:
 
 2. Creating tables and presenting the relationships between them
 
-3. Create a query that answers the restaurant owner's questions.
+3. Create a query that answers the restaurant owner's questions
 
-4. Visualization of the obtained results.
+4. Visualization of the obtained results
