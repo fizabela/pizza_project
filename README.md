@@ -1,6 +1,6 @@
 # Pizza Restaurant Sales
 
-# Goal
+## Goal
 
 This project aims to summarize and present the sales data of the pizzeria.
 
@@ -17,7 +17,7 @@ What are our best and worst-selling pizzas?
 
 What is our average order value?
 
-# Project workflow
+## Project workflow
 
 
 The project includes:
