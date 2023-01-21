@@ -28,4 +28,4 @@ The project includes:
 
 3. Create a query that answers the restaurant owner's questions
 
-4. Visualization of the obtained results
+4. Visualization of the obtained results (prepared on Google Data Studio)
